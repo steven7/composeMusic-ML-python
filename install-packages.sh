@@ -20,6 +20,20 @@ apt-get -y upgrade
 # Dependency for converting midi to actual music file.
 apt-get -y install --no-install-recommends fluidsynth 
 
+
+#Install HDF5py This won't install with pip on Apple Sillicon the normal way
+# apt-get -y install hdf5
+# brew install hdf5
+# export HDF5_DIR=/opt/homebrew/Cellar/hdf5/1.12.0_4
+# pip install --no-binary=h5py h5py
+
+# /opt/homebrew/bin/brew install openblas
+# export OPENBLAS=$(/opt/homebrew/bin/brew --prefix openblas)
+# export CFLAGS="-falign-functions=8 ${CFLAGS}"
+# git clone https://github.com/scipy/scipy.git
+# cd scipy
+# /opt/homebrew/bin/pip install .
+
 # Delete cached files we don't need anymore (note that if you're
 # using official Docker images for Debian or Ubuntu, this happens
 # automatically, you don't need to do it yourself):
