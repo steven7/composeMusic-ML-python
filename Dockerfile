@@ -31,9 +31,4 @@ RUN pip install tensorflow-aarch64 -f https://tf.kmtea.eu/whl/stable.htm
 
 EXPOSE 8010
 
-# CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=8010"]
-
-# waitress-serve --port=8010 --call hello:create_app
-
 CMD [ "waitress-serve", "--port=8010", "--call", "app:create_app"]
-# waitress-serve --port=8010 --call hello:create_app
