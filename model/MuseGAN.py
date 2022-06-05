@@ -1,6 +1,4 @@
 from tensorflow.keras.layers import Input, Conv2D, Flatten, Dense, Conv2DTranspose, Reshape, Lambda, Activation, BatchNormalization, LeakyReLU, Dropout, ZeroPadding2D, UpSampling2D, Reshape, Permute, RepeatVector, Concatenate, Conv3D
-#from tensorflow.keras.layers.merge import _Merge
-#from tensorflow.keras.layers.merge import _merge
 
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras import backend as K

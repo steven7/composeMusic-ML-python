@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-
-FROM --platform=linux/amd64 python:3.8-slim-buster
+ 
+FROM python:3.8-slim-buster
 
 # development channel. Either dev or prod. docker-compose will pass in dev channel.
 # wil default to prod when deplying to aws
@@ -27,14 +27,13 @@ COPY soundfonts/default.sf2 /usr/share/soundfonts/default.sf2
 RUN pip3 install -r requirements.txt 
 
 # Tensorflow with custom wheel for docker on M1 mac
-RUN pip install tensorflow -f https://tf.kmtea.eu/whl/stable.html
+RUN pip install tensorflow-aarch64 -f https://tf.kmtea.eu/whl/stable.htm
 
 EXPOSE 8010
 
-# CMD [ "python3", "-m" , "flask", "run", "--host=localhost", "--port=5000"]
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=8010"]
+# CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=8010"]
 
 # waitress-serve --port=8010 --call hello:create_app
 
-# CMD [ "waitress-serve", "--port=8010", "--call", "app:create_app"]
+CMD [ "waitress-serve", "--port=8010", "--call", "app:create_app"]
 # waitress-serve --port=8010 --call hello:create_app
