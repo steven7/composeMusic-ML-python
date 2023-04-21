@@ -475,9 +475,9 @@ class MuseGAN():
                 parts.append(s)
   
             if filename is None:
-                filepath=os.path.join(run_folder, "composed_music/composed_{}_{}.midi".format(self.epoch, score_num))
+                filepath=os.path.join(run_folder, "composed_{}_{}.midi".format(self.epoch, score_num))
             else:
-                filepath=os.path.join(run_folder, "composed_music/{}.midi".format(filename))
+                filepath=os.path.join(run_folder, "{}.midi".format(filename))
                 
             parts.write('midi', filepath)
             
@@ -513,7 +513,7 @@ class MuseGAN():
         self.generator.save(os.path.join(run_folder, 'generator.h5'))
         pickle.dump(self, open( os.path.join(run_folder, "obj.pkl"), "wb" ))
 
-    def load_weights(self, run_folder, epoch=None):
+    def load_weights(self, run_folder, write_folder, epoch=None):
 
         if epoch is None:
 

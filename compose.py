@@ -2,11 +2,11 @@
 import datetime
 import numpy as np
 import uuid
- 
+import subprocess
+
 from midi2audio import FluidSynth
 from model.MuseGAN import MuseGAN
 from utils.loaders import load_music, fetch_midi_file
-
 
 WEIGHTS_FOLDER = "./model/weights"
 
@@ -16,6 +16,7 @@ FILENAME = 'Jsb16thSeparated.npz'
 RUN_ID = '0018'
 RUN_FOLDER = 'run/'
 RUN_FOLDER += '_'.join([RUN_ID, DATA_NAME])
+WRITE_FOLDER = '/tmp'
 n_bars = 2
 n_steps_per_bar = 16
 n_pitches = 84
@@ -102,6 +103,56 @@ def muse_gan_compose_write_to_midi():
 #    gen_score.show()
     return 
 
+# Fetch the actual midi file
+def fetch_midi(filepath):
+    midi_file = fetch_midi_file(filepath)
+    return midi_file
+
+def create_wav_with_midi(midi_filepath):
+    # print('___________________  create_wav_with_midi  ___________________')
+    fs = FluidSynth()
+    # print('___________________  fs  ___________________')
+    # print(fs)    
+    wav_filepath = wav_filepath_out_of_midi_filepath(midi_filepath)
+
+    # try:
+    #     print('___________________  command method env var setup ___________________')
+        
+    #     # command = 'export LD_LIBRARY_PATH=/usr/local/lib64'
+    #     # print(command)
+    #     # process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    #     # output, error = process.communicate()
+    #     # print('___________________  output  ___________________')
+    #     # print(output)
+        
+    #     # print('___________________  command method  ___________________')
+    #     # command = 'fluidsynth -F compose/tmp/changing_chords.wav /usr/local/share/soundfonts/default.sf2 compose/run/0018_chorales/samples/changing_chords.midi'
+    #     command = 'fluidsynth -F ' + wav_filepath + ' /usr/local/share/soundfonts/default.sf2 ' + midi_filepath #compose/run/0018_chorales/samples/changing_chords.midi'     
+    #     print(command)
+    #     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    #     output, error = process.communicate()
+    #     print('___________________  output  ___________________')
+    #     print(output)
+    # except: 
+    # print('___________________  fs.midi_to_audio commencing  ___________________')
+    fs.midi_to_audio(midi_filepath, wav_filepath)
+    # print('___________________  fs.midi_to_audio completed  ___________________')
+    ####
+    return wav_filepath
+
+def wav_filepath_out_of_midi_filepath(midi_filepath):
+    # print('___________________  wav_filepath_out_of_midi_filepath  ___________________')
+    wav_filepath = midi_filepath
+    if midi_filepath.endswith('mid'):
+       wav_filepath = midi_filepath[:-len('mid')]
+    if midi_filepath.endswith('midi'):
+       wav_filepath = midi_filepath[:-len('midi')]
+    if not wav_filepath.endswith('.'):
+       wav_filepath =  wav_filepath + '.'
+    wav_filepath = wav_filepath + 'wav'
+    return wav_filepath
+
+
 ##
 ##
 ## The main function on the application. Compose track and write to midi.
@@ -123,7 +174,7 @@ def compose_midi(compose_type = ''):
         )
     # load trained weights onto object
     gan.load_weights(RUN_FOLDER, None)
-    
+
     # noise
     chords_noise = np.random.normal(0, 1, (1, gan.z_dim))
     style_noise = np.random.normal(0, 1, (1, gan.z_dim))
@@ -145,45 +196,17 @@ def compose_midi(compose_type = ''):
     elif compose_type == 'changing_groove':
         groove_noise = np.copy(groove_noise)
         groove_noise[0,3,:] = 5 * np.ones(gan.z_dim)
-    # 
     
     gen_scores = gan.generator.predict([chords_noise, style_noise, melody_noise, groove_noise])
-    #
+
     np.argmax(gen_scores[0,0,0:4,:,3], axis = 1)
-    #
     gen_scores[0,0,0:4,60,3] = 0.02347812
-    #
+    
     timestamp = datetime.datetime.now().strftime("%m-%d-%Y.%H-%M-%S")
     unique_id = str(uuid.uuid4())
     filename = timestamp + "_" + unique_id
-    filepath = gan.notes_to_midi(RUN_FOLDER, gen_scores, filename)
-    ## TODO: Consider maybe adding score image file later
-    return filepath, filename
+    
+    filepath = gan.notes_to_midi(WRITE_FOLDER, gen_scores, filename)
 
-# Fetch the actual midi file
-def fetch_midi(filepath):
-    midi_file = fetch_midi_file(filepath)
-    return midi_file
-
-def create_wav_with_midi(midi_filepath):
-    fs = FluidSynth()
-    ## filepath for .wav
-#    wav_filepath = midi_filepath
-#    if midi_filepath.endswith('mid'):
-#       wav_filepath = midi_filepath[:-len('mid')]
-#    if midi_filepath.endswith('midi'):
-#       wav_filepath = midi_filepath[:-len('midi')]
-#    wav_filepath = wav_filepath + 'wav'
-    wav_filepath = wav_filepath_out_of_midi_filepath(midi_filepath)
-    # create .mp3 version
-    fs.midi_to_audio(midi_filepath, wav_filepath)
-    return wav_filepath
-
-def wav_filepath_out_of_midi_filepath(midi_filepath):
-    wav_filepath = midi_filepath
-    if midi_filepath.endswith('mid'):
-       wav_filepath = midi_filepath[:-len('mid')]
-    if midi_filepath.endswith('midi'):
-       wav_filepath = midi_filepath[:-len('midi')]
-    wav_filepath = wav_filepath + 'wav'
-    return wav_filepath
+    ## TODO: Consider maybe adding score image file later <-- actually do this
+    return filename, filepath 
