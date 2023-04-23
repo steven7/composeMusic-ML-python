@@ -134,9 +134,9 @@ def create_wav_with_midi(midi_filepath):
     #     print('___________________  output  ___________________')
     #     print(output)
     # except: 
-    # print('___________________  fs.midi_to_audio commencing  ___________________')
+    print('___________________  fs.midi_to_audio commencing  ___________________')
     fs.midi_to_audio(midi_filepath, wav_filepath)
-    # print('___________________  fs.midi_to_audio completed  ___________________')
+    print('___________________  fs.midi_to_audio completed  ___________________')
     ####
     return wav_filepath
 
