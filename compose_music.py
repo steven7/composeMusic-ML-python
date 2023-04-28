@@ -1,6 +1,6 @@
-import json
+import base64
 import requests
-import os
+# import os
 from compose import compose_midi, create_wav_with_midi, wav_filepath_out_of_midi_filepath 
 
 # Core function for the make music functionality
@@ -38,8 +38,8 @@ def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_pr
         default_cover_file_path = "images/music_icon_blue_transparent.png"
         cover_file = open(default_cover_file_path, 'rb')
                     
-        music_file_data = base64.b64encode(music_file)
-        cover_file_data = base64.b64encode(cover_file)
+        music_file_data = base64.b64encode(music_file.read())
+        cover_file_data = base64.b64encode(cover_file.read())
 
         # File clean up.
         # if os.path.isfile(composed_midi_filepath):
@@ -47,8 +47,8 @@ def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_pr
         # if os.path.isfile(composed_wav_filepath):
         #     os.remove(composed_wav_filepath)
 
-
         responseJson = {
+            "Content-Type": "application/json",
             "title": title,
             "artist": artist,
             "description": desc,
