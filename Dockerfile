@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # This is for AWS Lambda. It will be the default and production Dockerfile.
-# FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.8
-FROM public.ecr.aws/lambda/python:3.8
+FROM  amazon/aws-lambda-python:3.8
+# FROM --platform=linux/amd64 amazon/aws-lambda-python:3.8
+# FROM --platform=linux/amd64 amazon/aws-lambda-python:3.8
 
 # Set working directory.
 WORKDIR ${LAMBDA_TASK_ROOT}
@@ -47,7 +48,7 @@ RUN source ./install-fluidsynth-aws-linux.sh
 RUN pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 # # Tensorflow with custom wheel for docker on M1 mac
-RUN pip3 install tensorflow-aarch64 -f https://tf.kmtea.eu/whl/stable.htm
+# RUN pip3 install tensorflow-aarch64 -f https://tf.kmtea.eu/whl/stable.htm
 
 # Protobud library ~3.18 is missing the builder.pyt file for some reason. This makes up for that.
 RUN curl https://raw.githubusercontent.com/protocolbuffers/protobuf/main/python/google/protobuf/internal/builder.py > /var/task/google/protobuf/internal/builder.py

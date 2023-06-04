@@ -43,7 +43,7 @@ requests-oauthlib==1.3.0
 rsa==4.7.2
 scipy==1.8.0
 six==1.15.0
-# tensorflow==2.8.0
+tensorflow==2.8.0
 # tensorflow==2.8.0 -f https://tf.kmtea.eu/whl/stable.html
 # tensorboard==2.8.0 
 # tensorboard-data-server==0.6.1

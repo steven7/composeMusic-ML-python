@@ -5,12 +5,14 @@ from compose_music import compose_music
 
 is_prod = True
 
+ 
 def lambda_handler(event, context):
-    # print('___________________ Lambda invoked!! ___________________')
-    # print('___________________   event   ___________________')
-    # print(event)
-    # print('___________________  context  ___________________')
-    # print(context)
+    print('___________________ Lambda invoked!! ___________________')
+    print('___________________   event   ___________________')
+    print(event)
+
+    # Send created files to the golang server that stores files in S3 and metadata in relational DB.
+    with_app = True # Toggle on or off with json parameter.
 
     # Default parameters.
     user_id = 1
@@ -27,14 +29,17 @@ def lambda_handler(event, context):
         title = event['title']
         desc = event['desc']
         if event['compose_type']:
-            compose_type = event['compose_type']
+            compose_type = event['compose_type']\
 
     except Exception as e:
         print('___________________   event body parsing error   ___________________ An exception occurred')
         print(e)
+
+    print('___________________  with_app  ___________________')
+    print(with_app)
     
     # Do NOt send to web app for now.
-    return compose_music(user_id, title, artist, desc, compose_type, False, is_prod)
+    return compose_music(user_id, title, artist, desc, compose_type, with_app, is_prod)
 
 # ## This file contains the API endpoint definations and is the gateway to the application.
 # from flask import Flask

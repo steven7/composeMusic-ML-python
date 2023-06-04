@@ -1,10 +1,10 @@
 import base64
 import requests
-# import os
+import os
 from compose import compose_midi, create_wav_with_midi, wav_filepath_out_of_midi_filepath 
 
 # Core function for the make music functionality
-def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_prod):
+def compose_music(user_id, title, artist, desc, compose_type, with_app, is_prod):
     try:
         # 
         # Create music
@@ -41,28 +41,27 @@ def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_pr
         music_file_data = base64.b64encode(music_file.read())
         cover_file_data = base64.b64encode(cover_file.read())
 
-        # File clean up.
-        # if os.path.isfile(composed_midi_filepath):
-        #     os.remove(composed_midi_filepath)
-        # if os.path.isfile(composed_wav_filepath):
-        #     os.remove(composed_wav_filepath)
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Custom-Header': 'Custom Value'
+        }
 
         responseJson = {
-            "Content-Type": "application/json",
-            "title": title,
-            "artist": artist,
-            "description": desc,
-            "composed_wav_filename": composed_wav_filename,
-            "music_file": music_file_data,
-            "default_cover_file_path": default_cover_file_path,
-            "cover_file": cover_file_data
+            'headers': headers,
+            'title': title,
+            'artist': artist,
+            'description': desc,
+            'music_file': music_file_data,
+            'cover_file': cover_file_data
         }
 
         # TODO: make request and send to composify (create music) web app api.
-        if with_webapp:
+        if with_app:
             port_number = 8000
             host_name = "app" # dev for local docker. the continaer name will be the host this cae.
+            print('___________________  with_app  ___________________')
             if is_prod:
+                # host_name = "compose-lb-34767192.us-east-2.elb.amazonaws.com"
                 host_name = "compose-lb-34767192.us-east-2.elb.amazonaws.com"
                 # host_name = "app" #"aws_host_name_app_container" #not the offical prod one yet. TODO: complete uploading containr to 
             
@@ -94,6 +93,9 @@ def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_pr
                 # "musicfile": (composed_midi_filename, music_file)
             }
 
+            print('___________________  multipart_form_data_files  ___________________')
+            print(multipart_form_data_files)
+            
             headers = requests.utils.default_headers()
             headers.update( { # We let the multipart/form-data be included in the content type header byt the requests library.
                     "Accept": "*/*",
@@ -111,6 +113,8 @@ def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_pr
             session.mount('http://', adapter)
             
             # Carry out request and get response.
+
+
             response = session.post(url = compose_app_url,
                                     headers = headers,
                                     data = json_body,
@@ -120,8 +124,26 @@ def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_pr
 
             responseJson = response.json()
 
-            print(' the response: ' + str(response), flush=True)
+            # Response will have track with format:
+            # `success`
+            # `message`
+            # `userID`
+	        # `title`
+	        # `artist`
+	        # `lengthInSeconds`
+	        # `description`
+	        # `coverImage` // Take out
+	        # `musicFile`  // Take out
+	        # `coverImageFilename`
+	        # `musicFilename`
+	        # `filename`
 
+            print(' the response: ' + str(response), flush=True)
+            
+            
+            # Clean up before leaving.
+            cleanup_file(composed_midi_filepath)
+            cleanup_file(composed_wav_filepath)
 
         return responseJson
         
@@ -133,5 +155,15 @@ def compose_music(user_id, title, artist, desc, compose_type, with_webapp, is_pr
             "message": "Could not compose",
             "detail": str(e)
         }
+        # Clean up before leaving.
+        if composed_midi_filepath:
+            cleanup_file(composed_midi_filepath)
+        if composed_wav_filepath:
+            cleanup_file(composed_wav_filepath)
         return response 
     return
+
+def cleanup_file(filepath):
+    # File clean up.
+    if os.path.isfile(filepath):
+        os.remove(filepath)

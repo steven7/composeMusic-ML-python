@@ -204,7 +204,7 @@ def compose_midi(compose_type = ''):
     
     timestamp = datetime.datetime.now().strftime("%m-%d-%Y.%H-%M-%S")
     unique_id = str(uuid.uuid4())
-    filename = timestamp + "_" + unique_id
+    filename = "compose.io_" + timestamp + "_" + unique_id
     
     filepath = gan.notes_to_midi(WRITE_FOLDER, gen_scores, filename)
 
